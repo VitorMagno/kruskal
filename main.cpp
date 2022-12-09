@@ -10,107 +10,101 @@
 
 using namespace std;
 
+bool naoEhDoMesmoConjunto(int paiDoVerticeVizinho, int paiDoVerticeAtual){
+  if(paiDoVerticeVizinho != paiDoVerticeAtual){
+    return true;
+  }
+  return false;
+}
 
-void kruskal(int s, int t, int n, int** G, int *dist, int *pais)
+bool existeCaminho(int valor){
+  if(valor == INT_MAX){
+    return false;
+  }
+  return true;
+}
+bool precisaAtualizar(int custoAtual, int pesoDeOutroCaminho){
+  if(custoAtual > pesoDeOutroCaminho ){
+    return true;
+  }
+  return false;
+}
+void kruskal(int verticeInicial, int verticeFinal, int n, int** G, int *distIndividual, int *paiDe)
 {
   // inicializa d e p
-    for (int i = s; i <= t; i++)
-    {
-        dist[i] = 100000;
-        pais[i]= -1;
-        //cout << dist.at(i) << pais.at(i) <<endl;
-    }
-    dist[s] = 0;
-    for(int i = s; i < n ; i++){
-        for (int j = 1; j <= t ; j ++){
-            if(G[i][j] != INT_MAX){
-                if(dist[j] > G[i][j] + dist[i]){
-                    //cout << "vertice atual " << i << "; vizinho " << j << endl;
-                    dist[j] = G[i][j] + dist[i];
-                    //cout << "distancia do atual " << i << " a " << j << ": " << dist[j] << endl;
-                    pais[j] = i;
-                }
-            }
+  for (int i = verticeInicial; i <= verticeFinal; i++)
+  {
+      distIndividual[i] = 100000;
+      paiDe[i]= i;
+      //cout << dist.at(i) << paiDe.at(i) <<endl;
+  }
+  bool naArvore[verticeFinal];
+  for (int i = verticeInicial; i <= verticeFinal; i++){
+    naArvore[i] = false;
+  }
+  priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> fila;
+  fila.push({0,verticeInicial});
+  while(!fila.empty()){
+    pair<int,int> primeiroElementoDaFila = fila.top();
+    fila.pop();
+    int verticeAtual = primeiroElementoDaFila.second;
+    int pesoVerticeAtual = primeiroElementoDaFila.first;
+    for(int i = 1; i <= verticeFinal; i++){
+      int vizinhoVerticeAtual = i;
+      int pesoDoVizinhoPeloVerticeAtual = G[verticeAtual][vizinhoVerticeAtual];
+      //cout << vizinhoVerticeAtual << " peso " << pesoDoVizinhoPeloVerticeAtual << endl;
+      if(existeCaminho(pesoDoVizinhoPeloVerticeAtual)){
+        if(precisaAtualizar(distIndividual[vizinhoVerticeAtual], pesoDoVizinhoPeloVerticeAtual) && naoEhDoMesmoConjunto(paiDe[vizinhoVerticeAtual], paiDe[verticeAtual])){
+          distIndividual[vizinhoVerticeAtual] = pesoDoVizinhoPeloVerticeAtual;
+          paiDe[vizinhoVerticeAtual] = paiDe[verticeAtual];
+          //cout << paiDe[vizinhoVerticeAtual] << " eh pai de " << vizinhoVerticeAtual << " com distancia " << distIndividual[vizinhoVerticeAtual] << endl;
+          fila.push({distIndividual[vizinhoVerticeAtual], vizinhoVerticeAtual});
         }
+      }
     }
-    for(int i = s; i < n ; i++){
-        for (int j = 1; j <= t ; j ++){
-            if(G[i][j] != INT_MAX){
-                if(dist[j] > G[i][j] + dist[i]){
-                    cout<<"ciclo negativo detectado"<< endl;
-                }
-            }
-        }
-    }
-    return;
+  }
+  return;
 }
 
 
-void solutions(bool saida, string nomeSaida, bool solucao, int s, int t, int** G, int n){
-    int dist[t];
-    int pais[t];
-    //vector<int> *ptrDist = &dist;
-    //vector<int> *ptrPais = &pais;
-    kruskal(s, t, n, G, &dist[0], &pais[0]);
-    if (saida && solucao){
+void solutions(bool saida, string nomeSaida, bool solucao, int verticeInicial, int verticeFinal, int** G, int n){
+  int dist[n];
+  int pais[n];
+  kruskal(verticeInicial, verticeFinal, n, G, &dist[0], &pais[0]);
+  string resposta="";
+  if (saida && solucao){
     // escreve a saida das distancias ordenadas num arquivo txt
-        ofstream out;
-        out.open(nomeSaida, ofstream::out);
-        for (int i = s; i <= t; i++)
-        {
-          if(i == s){
-            out << "raiz " << i << endl;
-          }else if (pais[i] == -1){
-            out << "nao existe caminho" << endl;
-          }else{
-            out << "menor peso de " << s <<" a "<< i <<": "<< dist[i] << endl;
-          }
-        }
-        out.close();
-        return;
-    }
-    if(saida){
-    // escreve o peso do menor caminho num arquivo txt
-        ofstream out;
-        out.open(nomeSaida, ofstream::out);
-        int sumCaminho=0;
-        for(int i = s; i <= t; i++){
-          if(dist[i] == 100000){
-            continue;
-          }else{
-            sumCaminho = dist[i];
-          }
-        }
-        out << "peso do menor caminho: "<< sumCaminho << endl;
-        out.close();
-        return;
-    }
-    if(solucao){
-    // exibe no terminal as distancias ordenadas de cada aresta
-      for(int i = s; i <= t; i++){
-        if(i == s){
-          cout << "raiz " << i << endl;
-        }else if (pais[i] == -1){
-          cout << "nao existe caminho" << endl;
-        }else{
-          cout << "menor peso de " << s <<" a "<< i <<": "<< dist[i] << endl;
-        }
-      }
-    return;
-    }
-    // exibe no terminal o peso do menor caminho
-    int sumCaminho=0;
-    for(int i = s; i <= t; i++){
-      if(dist[i] == 100000){
-        continue;
+    ofstream out;
+    out.open(nomeSaida, ofstream::out);
+    for (int i = verticeFinal; i >= verticeInicial; i--){
+      if(i == verticeInicial){
+        resposta ="raiz: "+to_string(i) + "\n"+resposta;
+      }else if (dist[i] == 100000){
+        resposta = "vertice " +to_string(i) + " nao atingivel\n" + resposta;
       }else{
-        //cout<< "v: " << i << " distancia " << dist[i]<<endl;
-        sumCaminho = dist[i];
+        resposta = to_string(pais[i]) + " pai de " +to_string(i)+ " com peso: " + to_string(dist[i]) + "\n" + resposta;
       }
     }
-    
-    cout << "peso do menor caminho: "<< sumCaminho << endl;
+    out << resposta << endl;
+    out.close();
     return;
+  }else{
+    // exibe no terminal as distancias ordenadas de cada aresta
+    for (int i = verticeFinal; i >= verticeInicial; i--){
+
+        if(i == verticeInicial){
+          resposta ="raiz: "+to_string(i) + "\n"+resposta;
+        }else if (dist[i] == 100000){
+          resposta = "vertice " +to_string(i) + " nao atingivel\n" + resposta;
+        }else{
+          resposta = to_string(pais[i]) + " pai de " +to_string(i)+ " com peso: " + to_string(dist[i]) + "\n" + resposta;
+        }
+      }
+    cout << resposta << endl;
+    return;
+  }
+  cout << "nao implementado nesse algoritmo" <<endl;
+  return;
 }
 
 int main(int argc, char const *argv[]){
@@ -130,8 +124,8 @@ int main(int argc, char const *argv[]){
   string opSaida = "-o";
   string nomeSaida;
   bool saida = false;
-  int s = 1;
-  int t = 999;
+  int verticeInicial = 1;
+  int verticeFinal = 999;
   int** G;
   int n;
 
@@ -157,8 +151,8 @@ int main(int argc, char const *argv[]){
       
       // Usamos +1 pra acessar os vértices pelos seus números. Deixaremos a primeira linha e primeira colunas sem usar.
       G = new int* [qtd_ares+1];
-      n = qtd_ares+1;
-      t = qtd_vert+1;
+      n = qtd_vert+1;
+      verticeFinal = n - 1;
       for (int y = 0; y <qtd_ares+1; y++){
         G[y] = new int [qtd_ares+1];
       }
@@ -202,23 +196,25 @@ int main(int argc, char const *argv[]){
 
     if (argv[i] == opInicial){
       inicial = true;
-      s = stoi(argv[i+1]);
+      verticeInicial = stoi(argv[i+1]);
     }
 
     if (argv[i] == opFinal){
-      final = true;
-      t = stoi(argv[i+1]);
+      cout << "nao disponivel" << endl;
+      //final = true;
+      //verticeFinal = stoi(argv[i+1]);
     }
 
     if (argv[i] == opSaida){
     	saida = true;
-        nomeSaida = argv[i+1];
+      nomeSaida = argv[i+1];
     }
     if(argv[i]== opSolucao){
-        solucao = true;
+      solucao = true;
     }
   }
 
-  solutions(saida, nomeSaida, solucao, s, t, G, n);
+  solutions(saida, nomeSaida, solucao, verticeInicial, verticeFinal, G, n);
   free(G);
+  return 0;
 }
