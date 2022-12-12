@@ -1,2 +1,2 @@
 all:	main.cpp
-	g++ main.cpp -o krukal
+	g++ main.cpp -o kruskal
