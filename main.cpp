@@ -32,34 +32,32 @@ bool precisaAtualizar(int custoAtual, int pesoDeOutroCaminho){
 }
 void kruskal(int verticeInicial, int verticeFinal, int n, int** G, int *distIndividual, int *paiDe)
 {
-  // inicializa d e p
+  // inicializa vetor de distancias e o de pais, com distancia infinita e cada vertice eh pai dele mesmo
   for (int i = verticeInicial; i <= verticeFinal; i++)
   {
       distIndividual[i] = 100000;
       paiDe[i]= i;
-      //cout << dist.at(i) << paiDe.at(i) <<endl;
   }
-  bool naArvore[verticeFinal];
-  for (int i = verticeInicial; i <= verticeFinal; i++){
+  bool naArvore[verticeFinal]; // array de bool serve pra verificar qual vertice ja foi posto na arvore
+  for (int i = verticeInicial; i <= verticeFinal; i++){ //inicializo o array com todos os vertices falsos
     naArvore[i] = false;
   }
-  priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> fila;
-  fila.push({0,verticeInicial});
-  while(!fila.empty()){
-    pair<int,int> primeiroElementoDaFila = fila.top();
-    fila.pop();
+  priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> fila; //crio uma fila de prioridade
+  fila.push({0,verticeInicial}); // coloco o vertice inicial e o peso dele, que deve ser 0, na fila
+  while(!fila.empty()){ 
+    pair<int,int> primeiroElementoDaFila = fila.top(); // guardo o par (peso, vertice) que esta no topo da fila
+    fila.pop(); // retiro o par da fila
     int verticeAtual = primeiroElementoDaFila.second;
     int pesoVerticeAtual = primeiroElementoDaFila.first;
-    for(int i = 1; i <= verticeFinal; i++){
+    for(int i = 1; i <= verticeFinal; i++){ // varre os vizinhos do vertice retirado do topo da fila
       int vizinhoVerticeAtual = i;
       int pesoDoVizinhoPeloVerticeAtual = G[verticeAtual][vizinhoVerticeAtual];
-      //cout << vizinhoVerticeAtual << " peso " << pesoDoVizinhoPeloVerticeAtual << endl;
-      if(existeCaminho(pesoDoVizinhoPeloVerticeAtual)){
-        if(precisaAtualizar(distIndividual[vizinhoVerticeAtual], pesoDoVizinhoPeloVerticeAtual) && naoEhDoMesmoConjunto(paiDe[vizinhoVerticeAtual], paiDe[verticeAtual])){
-          distIndividual[vizinhoVerticeAtual] = pesoDoVizinhoPeloVerticeAtual;
-          paiDe[vizinhoVerticeAtual] = paiDe[verticeAtual];
-          //cout << paiDe[vizinhoVerticeAtual] << " eh pai de " << vizinhoVerticeAtual << " com distancia " << distIndividual[vizinhoVerticeAtual] << endl;
-          fila.push({distIndividual[vizinhoVerticeAtual], vizinhoVerticeAtual});
+      if(existeCaminho(pesoDoVizinhoPeloVerticeAtual)){ // verifica se no grafo existe caminho do vertice atual para o vizinho
+        if(precisaAtualizar(distIndividual[vizinhoVerticeAtual], pesoDoVizinhoPeloVerticeAtual) 
+                      && naoEhDoMesmoConjunto(paiDe[vizinhoVerticeAtual], paiDe[verticeAtual])){ //verifica se precisa atualizar e se ja esta no conjunto
+          distIndividual[vizinhoVerticeAtual] = pesoDoVizinhoPeloVerticeAtual; //atualiza a distancia
+          paiDe[vizinhoVerticeAtual] = paiDe[verticeAtual]; //atualiza o pai
+          fila.push({distIndividual[vizinhoVerticeAtual], vizinhoVerticeAtual});// coloca o vizinho e sua distancia na fila, repeat process
         }
       }
     }
