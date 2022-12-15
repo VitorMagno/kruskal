@@ -10,7 +10,7 @@
 
 using namespace std;
 
-bool naoEhDoMesmoConjunto(int paiDoVerticeVizinho, int paiDoVerticeAtual){
+bool naoEhDoMesmoConjunto(int paiDoVerticeVizinho, int paiDoVerticeAtual){ // (find)
   if(paiDoVerticeVizinho != paiDoVerticeAtual){
     return true;
   }
@@ -56,7 +56,7 @@ void kruskal(int verticeInicial, int verticeFinal, int n, int** G, int *distIndi
         if(precisaAtualizar(distIndividual[vizinhoVerticeAtual], pesoDoVizinhoPeloVerticeAtual) 
                       && naoEhDoMesmoConjunto(paiDe[vizinhoVerticeAtual], paiDe[verticeAtual])){ //verifica se precisa atualizar e se ja esta no conjunto
           distIndividual[vizinhoVerticeAtual] = pesoDoVizinhoPeloVerticeAtual; //atualiza a distancia
-          paiDe[vizinhoVerticeAtual] = paiDe[verticeAtual]; //atualiza o pai
+          paiDe[vizinhoVerticeAtual] = paiDe[verticeAtual]; //atualiza o pai (union)
           fila.push({distIndividual[vizinhoVerticeAtual], vizinhoVerticeAtual});// coloca o vizinho e sua distancia na fila, repeat process
         }
       }
